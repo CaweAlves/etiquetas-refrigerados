@@ -5,21 +5,34 @@ interface Etiqueta {
   produto: string;
   preco: string;
   quantidade: number;
+  fontSize: string;
 }
 
+
 const etiquetas = ref<Etiqueta[]>([]);
+
+
+const ajustarFonteProduto = (etiqueta) => {
+  const produtoLength = etiqueta.produto.length;
+  console.log(produtoLength);
+  return `${Math.max(30 - produtoLength, 15)}px`;
+};
+
 const novaEtiqueta = ref({
   produto: "",
   preco: "",
   quantidade: 1,
+  fontSize: "10px",
 });
 
 const adicionarEtiqueta = () => {
-  const { produto, preco, quantidade } = novaEtiqueta.value;
+  const { produto, preco, quantidade, fontSize } = novaEtiqueta.value;
   for (let i = 0; i < quantidade; i++) {
-    etiquetas.value.push({ produto, preco, quantidade: 1 });
+    etiquetas.value.push({ produto, preco, quantidade: 1, fontSize: ajustarFonteProduto(novaEtiqueta.value) });
+    console.log(etiquetas.value);
   }
-  novaEtiqueta.value = { produto: "", preco: "", quantidade: 1 };
+  novaEtiqueta.value = { produto: "", preco: "", quantidade: 1, fontSize: "10px" };
+  ;
 };
 
 const limparEtiquetas = () => {
@@ -36,7 +49,7 @@ const totalEtiquetas = computed(() => {
 </script>
 
 <template>
-  <div class="min-h-screen bg-gray-100 flex flex-col">
+  <div class="min-h-screen bg-gray-100 flex flex-col print:hidden">
     <header class="bg-white shadow">
       <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
         <h1 class="text-2xl font-semibold text-gray-900">
@@ -89,11 +102,11 @@ const totalEtiquetas = computed(() => {
               </h2>
               <div class="bg-gray-50 p-4 rounded-md overflow-auto max-h-96 print:max-h-screen">
                 <div class="grid grid-cols-4 gap-1">
-                  <div v-for="(etiqueta, index) in etiquetas" :key="index" :class="[
-                    'border-2 border-dashed border-gray-300 p-2 rounded-md print:rounded-none shadow-sm hover:shadow-md transition',
-                  ]" style="width: 4cm; height: 2cm">
-                    <div class="text-xs font-bold truncate">{{ etiqueta.produto }}</div>
-                    <div class="text-xs">Preço: R$ {{ etiqueta.preco }}</div>
+                  <div v-for="(etiqueta, index) in etiquetas" :key="index"
+                    :class="[
+                      'border-2 border-dashed border-gray-300 p-2 rounded-md print:rounded-none shadow-sm hover:shadow-md transition flex flex-col justify-around']">
+                    <div class="text-base font-bold text-center self-center">{{ etiqueta.produto }}</div>
+                    <div class="text-xs text-center self-center">R$ {{ etiqueta.preco }}</div>
                   </div>
                 </div>
               </div>
@@ -113,6 +126,19 @@ const totalEtiquetas = computed(() => {
         </div>
       </div>
     </main>
+  </div>
+
+  <div class="p-4 rounded-md print:max-h-screen">
+    <div class="sm:hidden grid grid-cols-4 gap-1">
+      <div v-for="(etiqueta, index) in etiquetas" :key="index"
+        :class="[
+          'border-2 border-dashed border-gray-300 p-2 rounded-md print:rounded-none shadow-sm hover:shadow-md transition flex flex-col justify-between']">
+        <div id="produto" class="text-clip text-center font-bold self-center mt-2"
+          :style="{ fontSize: etiqueta.fontSize }">{{ etiqueta.produto }}
+        </div>
+        <div class="text-xl text-center font-bold self-center mb-4">R$ {{ etiqueta.preco }}</div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -136,7 +162,7 @@ const totalEtiquetas = computed(() => {
 
   .grid {
     display: grid !important;
-    grid-template-columns: repeat(auto-fill, 4cm) !important;
+    grid-template-columns: repeat(auto-fill, 5cm) !important;
     gap: 0 !important;
   }
 
@@ -146,9 +172,10 @@ const totalEtiquetas = computed(() => {
     margin: 0 !important;
     padding: 2mm !important;
     border: 1px dashed black !important;
-    width: 4cm !important;
-    height: 2cm !important;
+    width: 5cm !important;
+    height: 4cm !important;
     box-sizing: border-box !important;
   }
 }
+
 </style>
